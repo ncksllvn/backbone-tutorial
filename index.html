@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
+
+	<meta charset="utf-8">
+	<title>nick's backbone tutorial</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="bootstrap/css/prettify.css">
+
+	<!--[if lt IE 9]>
+		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+    <style>
+        ol.linenums {
+            margin-left: 0;
+        }
+    </style>
+</head>
+<body>
+
+	<div class="container">
+        
+        <h3>nick's backbone tutorial</h3>
+        
+        <div class="jumbotron">
+          <h1>Backbone</h1>
+          <p>Backbone is a JavaScript library that connects your UI to your API and:</p>
+          <ul>
+                    <li>Is built on <a href="http://jquery.com">jQuery</a> and <a href="http://underscorejs.org/">Underscore</a> to leverage existing proven tools</li>
+                    <li>Prevents tangled messes of jQuery selectors and callbacks that frantically try to stay in sync with the server</li>
+                    <li>Was created by Document Cloud, the makers of Underscore.
+                    <li>Might keep a UI programmer from losing his/her mind on a daily basis.</li>
+                </ul>
+        </div>
+        
+        <h3 class="text-center">To understand Backbone, you <i>should</i> understand these:</h3>
+                
+            <div class="row">
+                
+                
+                <!-- jQuery Panel will become a View -->
+                <div class="col-md-5" id="jquery">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title"><h2>jQuery</h2></div>
+                        </div>
+                        <div class="panel-body">
+                      
+                            <p>If you're looking at this, you probably know what jQuery is, but as a quick summary of its greatness:</p>
+                            
+                            <ul class="description">
+                                <li>The winning library of DOM selection and traversal</li>
+                                <li>Makes AJAX easy</li>
+                                <li>Contains JavaScript utility functions</li>
+                                <li>it's a "$" you see floating around all over the place</li>
+                            </ul>
+                            
+                            <p>                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <a data-toggle="collapse" href="#jquery-basic">example</a>
+                                    </div>
+                                </div>
+                                <div id="jquery-basic" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                            
+                            <pre class="prettyprint lang-js">
+// by convention, jQuery objects are prefixed with a '$'
+var $someElement = $('#some-id')
+
+// set onclick handler
+$someElement.click(function(){
+    
+    // get some data from the server
+    $.getJSON({
+        type: 'get',
+        url: '/api/magic-tricks',
+        success: function(magicTricks){
+        
+            var html = ''
+            
+            // make html from the json
+            $.each(magicTricks, function(trick){
+                html += '&lt;h1&gt;' + trick.name + '&lt;/h1&gt;'
+            })
+            
+            // set contents of the element
+            $someElement.html(html)
+        }
+    })
+
+})</pre>
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="panel-footer"><a href="http://jquery.com">jQuery docs</a></div>
+                    </div>
+                </div><!-- /jQuery panel -->
+                
+                
+                <!-- underscore panel -->
+                <div class="col-md-7" id="underscore">
+                     <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <div class="panel-title"><h2>Underscore</h2></div>
+                        </div>
+                        <div class="panel-body">
+                      
+                            <p>Underscore is a library that contains lots of useful functional programming helpers (it's like <a href="http://lodash.com/">Lo-Dash</a> if you've used that before). 
+                            Before you embark on writing some intense JavaScript logic, you should consult the Underscore docs and see if there's a function that will make life easier. 
+                            Also, <strong>relevant Underscore methods are built into Backbone</strong> so you don't needing to use the _ if you're using a native Backbone class.</p>
+                            
+                            <ul class="description">
+                                <li>Contains functions for Collections, Arrays, Objects, Functions, as well as utility functions</li>
+                                <li>Built in templating engine</li>
+                                <li>Saves you lots of typing while using <strong>browser-compatible</strong> methods under the hood, using native implementations if they exist</li>
+                                <li>It's an "_" that floats around</li>
+                            </ul>
+                                                        
+                            <div class="panel-group" id="underscore-code">
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <a data-toggle="collapse" data-parent="underscore-code" href="#underscore-basic">Basic example</a>
+                                    </div>
+                                </div>
+                                <div id="underscore-basic" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                    
+                                        <p>Consider this JSON:</p>
+                                
+                                        <pre class="prettyprint lang-js">
+var magicTricks = [
+    { id: 1, name: 'Abra Ka Dabra'                  },
+    { id: 2, name: 'Rabbit out of the hat'          },
+    { id: 3, name: 'Some card trick'                },
+    { id: 4, name: 'Cuts lady in half with big saw' },
+    { id: 5, name: 'I\'m not a magician.'           }
+]</pre>
+                                
+                                        <p>We need the magic trick with the Id of '2'. Here's the <strong>functional-style</strong> of how to do it using Underscore:</p>
+                                
+                                        <pre class="prettyprint lang-js">
+var trickWithIdOf2 = _.findWhere( magicTricks, { id: 2 })</pre>
+                                
+                                        <p>Or the <strong>Object-oriented</strong> style:</p>
+                                
+                                        <pre class="prettyprint lang-js">
+var trickWithIdOf2Again = _( magicTricks ).findWhere({ id: 2 })</pre>
+                                
+                                        <p>Both are equivalent to this way <strong>without using Underscore:</strong></p>
+                                
+                                        <pre class="prettyprint lang-js">
+var trickWithIdOf2
+for (var i = 0; i < magicTricks.length; i ++){
+
+    var trick = magicTricks[i]
+    
+    if (trick.id == 2){
+        trickWithIdOf2 = trick
+        break
+    }
+
+}
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="panel panel-danger">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        <a data-toggle="collapse" data-parent="underscore-code" href="#underscore-advanced">Advanced Example</a>
+                                    </div>
+                                </div>
+                                <div id="underscore-advanced" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                                            
+                                    <p>Here's a function that searches through a JSON of magic tricks and returns the match. Again, here's the magic tricks JSON:</p>
+                                
+<pre class="prettyprint lang-js">
+var magicTricks = [
+    { id: 1, name: 'Abra Ka Dabra'                  },
+    { id: 2, name: 'Rabbit out of the hat'          },
+    { id: 3, name: 'Some card trick'                },
+    { id: 4, name: 'Cuts lady in half with big saw' },
+    { id: 5, name: 'I\'m not a magician.'           }
+]</pre>
+
+                                    <p>Here's a simple way to do it with Underscore:</p>
+                                
+<pre class="prettyprint lang-js">
+function searchByName(){
+
+    var searchValue = $( '#myInput' ).val().toLowerCase()
+    
+    // get each name in an array
+    var names = _( magicTricks ).pluck( 'name' )           
+    
+    // convert each name to lower case
+    var namesLowerCase = _( names ).invoke( 'toLowerCase' )
+    
+    // filter the values according to the search value
+    var matches = _( namesLowerCase ).filter(function(name){
+        return name.indexOf( searchValue ) >= 0
+    })
+    
+    return matches
+
+}</pre>
+
+                                <p>It can also be done via <strong>chaining</strong> Underscore method calls:</p>
+                            
+<pre class="prettyprint lang-js">
+function searchByName(){
+
+    var searchValue = $( '#myInput' ).val().toLowerCase()
+    
+    var matches = _( magicTricks )
+        .chain()
+        .pluck( 'name' )
+        .invoke( 'toLowerCase' )
+        .filter(function(name){
+            return name.indexOf( searchValue ) >= 0
+        })
+        .value()
+        
+    return matches
+
+}</pre>
+                            
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <div class="panel panel-warning">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <a data-toggle="collapse" data-parent="underscore-code" href="#underscore-bind">Common JS Pitfall</a>
+                                </div>
+                            </div>
+                            <div id="underscore-bind" class="panel-collapse collapse">
+                                <div class="panel-body">
+                                
+                                    <p>Here's an object with a basic handler for deletions:</p>
+                                    <pre class="prettyprint lang-js">
+var myObject = {
+    title: 'My special object',
+    onClickDelete: function(){
+        if ( confirm( 'Are you sure you want to delete "' + this.title + '"?' ))
+            console.log('deleted')
+    }
+}
+
+</pre>
+
+                                    <p>Then we get a reference to a button and set its onclick handler:</p>
+
+<pre class="prettyprint lang-js">
+var button = document.getElementById( '#button' )
+
+button.onclick = myObject.onClickDelete</pre>
+
+                                    <p>This is <strong class="text-danger"> wrong!</strong> 'this.title' will be undefined because the 
+                                    function has been isolated from the object which causes a "context switch." That means
+                                    value of 'this' is not myObject like you would expect. We have to bind the function to myObject to make
+                                    'this' refer correctly to myObject. 
+                                    </p>
+
+<pre class="prettyprint lang-js">
+var button = document.getElementById( '#button' )
+
+button.onclick = _.bind( myObject.onClickDelete, myObject )</pre>
+
+                                    <p><strong>Note:</strong>  This is only necessary when dealing with functions and isolating them! We could have done it this way,
+                                    which would have also been correct but is not as concise:</p>
+                                    
+<pre class="prettyprint lang-js">
+var button = document.getElementById( '#button' )
+
+button.onclick = function(){
+    return myObject.onClickDelete()
+}</pre>
+
+                      
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        </div><!-- /panel-group -->
+                        
+                      </div><!-- /panel body -->
+                      <div class="panel-footer"><a href="http://underscorejs.org">Underscore docs</a></div>
+                    </div>
+                </div> <!-- /underscore panel -->
+            </div><!-- /row -->
+            
+            <h3 class="text-center">Then you can <i>properly</i> use:</h3>
+            
+            <div class="page-header">
+              <h1>Backbone <small>Events, Models, Collections and Views</small></h1>
+              <p>Essentially, Backbone just adds Events, then zips these two libraries together - using jQuery for AJAX and DOM event delegation and selection, 
+              and Underscore for wiring it all together and providing Backbone's classes with tons of useful methods. </p>
+            </div>
+            
+            <!-- Events 
+              ==================================================================================================================== -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="panel-title"><h2>Events</h2></div>
+                </div>
+                <div class="panel-body">
+                    <p>JavaScript is an <i>asynchronous</i> language, which you should embrace while building your apps! To do so,
+                    you use the publish-subscribe design pattern to keep your code modular and each piece independent of one another.
+                    <strong>All of Backbone's built-in classes extend Backbone's Event object!</strong> With that, there are some default events
+                    that occur for each Backbone class (which is what you will mostly rely on), but you can also use custom events.</p>
+                    <p>Here's a simple example of Backbone's built-in events and how to use it on a plain object</p>
+<h3><strong>on</strong></h3>
+<pre class="prettyprint lang-js linenums">
+var cat = {} // plain object kitty cat
+
+// cat extends Backbone's Event object
+_.extend(cat, Backbone.Events)
+
+// set a handler for the 'meow' event
+cat.on('meow', function(){
+    alert( 'The cat meowed!' )
+}
+
+// then trigger the event
+cat.trigger('meow')</pre>
+                    
+                    <h3><strong>listenTo</strong></h3>
+                    <p>Rather than using "on", you can also use <strong>listenTo</strong>, which automatically binds
+                    the callback function to the listener. This is <i>always</i> preferable to <strong>on</strong>, 
+                    as the listener can keep track of everything it's listening to so that it can stop listening at any point. 
+                    Maybe the cat listens for a dog to bark and then hisses in response:</p>
+                    
+<pre class="prettyprint lang-js linenums">
+var cat = {
+    breed: 'American Shorthair',
+    hiss: function(){
+        alert('I am a ' + this.breed + ' and I am hissing!')
+    }
+}
+var dog = {}
+
+_.extend(cat, Backbone.Events)
+_.extend(dog, Backbone.Events)
+
+cat.listenTo(dog, 'bark', cat.hiss)
+
+dog.trigger('bark')
+</pre>              
+                </div>
+                <div class="panel-footer">
+                    <a href="http://backbonejs.org/#Events">Events docs</a>
+                </div>
+            </div>
+        
+        <!-- Models 
+            =============================================================================================================-->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-title"><h2>Models</h2></div>
+            </div>
+            <div class="panel-body">
+                <p>Models can be thought of as Backbone's basic object - they are your basic unit of data. As all Backbone classes do, Models extend the Events object, 
+                and contain some built-in functionality for working with the server.
+                <h3>Example Model</h3>
+<pre class="prettyprint lang-js linenums">    
+// define a Cat class
+var Cat = Backbone.Model.extend({
+    
+    // If a property is undefined, then the defaults will be used
+    // This is also useful as a bluprint for the Class you can refer back to
+    // in case you forget a property name
+    defaults: function(){
+        return {
+            breed: 'American Shorthair',
+            furLength: 'short'
+        }
+    }
+    
+    // a URL for syncing with the server
+    , url: 'http://cats.com/api/cats'
+    
+    // Any extra custom functions can also be defined, like our hiss function
+    , hiss: function(){
+        alert('I am a ' + this.get('breed') + ' and I am hissing!')
+    }
+
+})
+</pre>
+    <p>Now we can create an instance of Cat:</p>
+<pre class="prettyprint lang-js linenums">    
+// Create an instance of Cat
+var myCat = new Cat({  
+    id: 156,
+    breed: 'Cheetoh',
+    furLength: 'long'
+})
+    
+</pre>
+
+<h3><strong>get</strong> and <strong>set</strong></h3>
+<p>Now we have an instance of Cat called <strong>myCat</strong>. Events on myCat will be triggered whenever an attribute changes:</p>
+
+<pre class="prettyprint lang-js linenums">
+// triggered every time the cat changes at all
+myCat.on('change', function(myCat, options){
+    alert('Something about the cat changed!')
+})
+
+// only when furLength changes
+myCat.on('change:furLength', function(myCat, value, options){
+    alert('The cat got a hair cut!')
+})
+
+// if the cat has long fur, it's time for a hair cut
+if ( myCat.get('furLength') == 'long' )
+    myCat.set('furLength', 'short')
+</pre>
+<h3><strong>fetch</strong> and <strong>save</strong></h3>
+<p>Finally, we can also interface with an API. Calling <strong>fetch</strong> will send a GET request to "http://cats.com/api/cats/156" since we defined the URL for the Cat model
+as "http://cats.com/api/cats" and <strong>myCat</strong>'s id is 156. The API is expected to respond with the attributes of the model, and then the model will trigger 
+any <span class="text-info">change</span> events if there are any - this is also true for any save requests. 
+Here we listen for the <span class="text-info">sync</span> event, which <strong>myCat</strong> will fire every time it has been synced with the API.</p>
+<pre class="prettyprint lang-js linenums">
+myCat.on('request', function(myCat, xhr, options){
+    console.log('The cat is issuing a request to the API.')
+})
+
+myCat.on('sync', function(myCat, response, options){
+    console.log('The cat has been synced with the server.')
+})
+
+myCat.fetch()
+</pre>
+<p>Or let's say you've modified the cat's properties and you need to save. This time we use the success callback:</p>
+<pre class="prettyprint lang-js linenums">
+    
+myCat.set('furLength', 'short')
+
+// use the success callback
+myCat.save({
+    success: function(){
+        alert('We have saved the cat!')
+    },
+    error: function(){
+        alert('Our save has failed')
+    }
+})
+    
+</pre>
+
+<p>If <strong>myCat</strong> or whatever Model does not have an "id", then calling save will issue a POST. Once it does have an id, it will issue a PUT. 
+Both will have the Model's properties as JSON in the payload.</p>
+
+            </div>
+            <div class="panel-footer">
+                <a href="http://backbonejs.org/#Model">Model docs</a>
+            </div>
+        </div>
+        
+        <!-- Collections
+            ==========================================================================================================================-->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-title"><h2>Collections</h2></div>
+            </div>
+                <div class="panel-body">
+                    <p>Collections are just arrays of Models that trigger events and have events for array manipulation. As an important note, 
+                    <strong>any events that triggered by a member of a collection will also be triggered by that collection</strong> so you can listen for any changes within the whole group. 
+                    Let's define a Collection for the Cat Model:</p>
+<h3>Example Collection</h3>
+<pre class="prettyprint lang-js linenums">
+var Cats = Backbone.Collection.extend({
+    
+    model: Cat,
+    
+    url: 'http://cats.com/api/cats',
+    
+    hiss: function(){
+        return this.invoke('hiss') // call hiss on every cat in this collection
+    },
+    
+    getCatsWithLongHair: function(){
+        return this.where({ hairLength: 'long' })
+    }
+
+})
+</pre>
+
+                <p>Now make an instance of the Cats:</p>
+
+<pre class="prettyprint lang-js linenums">
+// You could pass an array of Cats or plain objects to initialize it. 
+// Each plain object would be turned into a Cat, since that's the corresponding Model for Cats.
+var allMyCats = new Cats() 
+</pre>
+                <h3><strong>fetch</strong></h3>
+                <p>Then we just need to sync it with the server using <strong>fetch</strong>. This will send a GET request to 'http://cats.com/api/cats'. 
+                Collections are only used for retrieval, so it has no save method.</p>
+<pre class="prettyprint lang-js linenums">
+allMyCats.fetch({
+    success: function(){
+        alert('We got our cats!')
+    }
+})
+</pre>
+                <h3><strong>add</strong></h3>
+                <p>Now let's add <strong>myCat</strong> to <strong>allMyCats</strong> and listen for the <span class="text-info">add</span> event:</p>
+<pre class="prettyprint lang-js linenums">
+allMyCats.on('add', function(addedCat, catCollection, options){
+    alert('a cat was added to allMyCats!')
+})
+
+allMyCats.add(myCat)
+</pre>
+                <h3><strong>remove</strong></h3>
+                <p>For some reason we want to remove <strong>myCat</strong> from the <strong>allMyCats</strong> now.</p>
+<pre class="prettyprint lang-js linenums">
+allMyCats.on('remove', function(removedCat, catCollection, options){
+    alert('a cat was removed from allMyCats!')
+})
+
+allMyCats.remove(myCat)
+</pre>                
+                <h3><strong>get</strong></h3>
+                <p>Then let's say we have an id, and we want to get the corresponding Cat out of there and give it a haircut. 
+                We'll also listen for the corresponding <span class="text-info">change</span> event:<p>
+<pre class="prettyprint lang-js linenums">
+allMyCats.on('change:hairLength', function(changedCat){
+    console.log(changedCat.id + ' got a haircut!')
+})
+
+var id = 223 // A random id
+var cat = allMyCats.get(id)
+
+if ( cat ) 
+    cat.set('hairLength', 'short')
+</pre>       
+            <h3><strong>create</strong></h3>
+            <p>A common routine is to create a Model out of a user's input, add it to the collection and then save that new Model. 
+            This will first trigger <span class="text-info">add</span>, followed by that newly added model saving itself to the server, 
+            so the events <span class="text-info">request</span> and <span class="text-info">sync</span>  by the collection as well as the model.<p>
+<pre class="prettyprint lang-js linenums">
+var catAttributes = {
+    breed:      $('input#breed').val(),
+    hairLength: $('input#hairLength').val()
+}
+allMyCats.create(cat)
+</pre>          
+                </div>
+            <div class="panel-footer">
+                <a href="http://backbonejs.org/#Collection">Collection docs</a>
+            </div>
+        </div>
+        
+        
+        <!-- Views
+            ======================================================================================-->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-title"><h2>Views</h2></div>
+            </div>
+            <div class="panel-body">
+                Views are the actual UI layer, each one bound to an element and usually a Model or a Collection. Their usual pattern is to render, and 
+                then listen for events within the Model or Collection and respond accordingly.
+            <h3>Example View</h3>
+            <p>Let's say we have this HTML already on our page, and we want to bind it to a View.</p>
+<pre class="prettyprint lang-html linenums">
+&lt;div id="cat-form"&gt;
+    &lt;input type="text" name="breed" /&gt;
+    &lt;input type="text" name="hairLength" /&gt;
+    &lt;button class="add"&gt;
+&lt;/div&gt;
+</pre>
+            <h3>DOM Events</h3>
+            <p>So we define a View, bind it to the form, then add a few events to listen for from the DOM.</p>
+<pre class="prettyprint lang-js linenums">
+var CatForm = Backbone.View.extend({
+
+    el: $('#cat-form'), // bind to the form
+    
+    // DOM-event handling ========================================================
+    // the syntax for an event is: 'eventName jquerySelector' : 'callbackFunction'
+    events: {
+        'change input[name="hairLength"]' : 'onHairLengthChange',
+        'click .add'                      : 'onAddClick'
+    },
+    
+    // DOM-event handling functions
+    onHairLengthChange: function(event){
+        var $input = this.$('input[name="hairLength"]')
+        var hairLength = $input.val()
+        
+        // for some reason, medium-length haired cats are not allowed
+        if (hairLength=='medium'){
+            alert('Medium-haired cats are not allowed.')
+            $input.val('')
+        }
+    },
+    
+    onAddClick: function(event){
+        var catAttributes = {
+            breed: this.$('input[name="breed"]').val(),
+            hairLength: this.$('input[name="hairLength"]').val()
+        }
+        
+        this.collection.create(catAttributes)
+    }
+
+})
+</pre>
+        <p>Then make an instance of this class:</p>
+<pre class="prettyprint lang-js linenums">
+var catForm = new CatForm({ collection: allMyCats })
+</pre>        
+        
+        <p>Note: The use of the <strong>gobal jQuery object should be avoided!</strong> Views should only access what's in there personal DOM, so in 
+        this case anything outside of "#cat-form" is none of this View's business. jQuery can be used via <strong>this.$('selector')</strong> or <strong>this.$el.find('selector')</strong> 
+        in order to grab elements that exist in this View, but that should also be used minimally, since Backbone works to prevent webs of jQuery callbacks.</p>
+        
+        <h3>Templates</h3>
+        <p>The example works for static Views - Views that are always present on your page and don't really change. Sometimes though, you need a View to change the data is presenting. In that case,
+            you will need a <strong>template</strong>. There are all kinds of JavaScript templating languages, but Underscore has one built in, so that's the one we'll use to make a View that displays
+            the details of a cat.</p>
+<pre class="prettyprint lang-html linenums">
+&lt;script  id="cat-template" type="template/text"&gt;
+    &lt;h1&gt;Breed: &lt;%- breed %&gt;&lt;/h1&gt;
+    &lt;h3&gt;Hair Length: &lt;%- hairLength %&gt;&lt;/h3&gt;
+&lt;/script&gt;
+</pre>
+        <p>Everything between these "<% %>" will be interpreted. The extra hyphen means print whatever is inside, "<%- %>". Underscore will compile the template for us.</p>
+        <h3><strong>initialize</strong> and <strong>render</strong></h3>
+<pre class="prettyprint lang-js linenums">
+var CatDetails = Backbone.View.extend({
+
+    tagName: 'div', // the root element of this view (this.$el = a div)
+    
+    className: 'cat-view',
+    
+    template: _.template( $('#cat-template').html() ),
+    
+    // this is called when the View is created
+    initialize: function(){
+        this.listenTo(this.model, 'change', this.render)
+    },
+    
+    render: function(){
+        var modelAttributes = this.model.toJSON() // -> { breed: 'something', hairLength: 'something' }
+        var html = this.template(modelAttributes) // call the template function with modelAttributes as the context
+        
+        this.$el.html( html )
+        
+        return this // by convention, return 'this'
+    }
+
+})
+</pre>      
+            <p>So now we can make a model and see it reflected in that View:</p>
+
+<pre class="prettyprint lang-js linenums">
+var pinkPanther = new Cat({ breed: 'Pink Panther', hairLength: 'short' })
+var view = new CatDetails({ model: pinkPanther })
+
+view.render().$el.appendTo('#some-container')
+</pre>
+            <p>And now we see this in the DOM:</p>
+<pre class="prettyprint lang-html linenums">
+&lt;div class="cat-view"&gt;
+    &lt;h1&gt;Breed: Pink Panther&lt;/h1&gt;
+    &lt;h3&gt;Hair Length: short &lt;/h3&gt;
+&lt;/script&gt;
+</pre>
+            <p>And anything we change in the <strong>pinkPanther</strong> is automatically reflected in the DOM:</p>
+<pre class="prettyprint lang-js">
+pinkPanther.set('hairLength', 'long') // view will automatically re-render
+</pre>
+<pre class="prettyprint lang-html linenums">
+&lt;div class="cat-view"&gt;
+    &lt;h1&gt;Breed: Pink Panther&lt;/h1&gt;
+    &lt;h3&gt;Hair Length: long &lt;/h3&gt;
+&lt;/script&gt;
+</pre>
+
+            
+            
+            </div>
+            <div class="panel-footer">
+                <a href="http://backbonejs.org/#View">View docs</a>
+            </div>
+        </div>
+        
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-title"><h2>Router</h2></div>
+            </div>
+            <div class="panel-body">
+                Routers respond to the URL changing, including hash changes and the HTML5 History API (push state). When the URL changes, the router triggers an event.
+                There is much freedom here to the developer about how to respond to the event, whether the router should be in charge of removing and instantiating views in 
+                response, or whether you should do something more clever. Here's the most common boilerplate for a router:
+            
+<pre class="prettyprint lang-js linenums">
+var Router = Backbone.Router.extend({
+    
+    routes: {
+        ''                : 'onRouteHome',
+        'users(/:userId)' : 'onRouteUsers',  // () makes the userId optional
+        'profile'         : 'onRouteProfile'
+    },
+    
+    // Route has either just a '#' or nothing
+    onRouteHome: function(){
+        // do something
+    },
+    
+    // Route is #/users or #/users/13456
+    onRouteUsers: function(userId){
+        if (userId) {
+            // do something
+        }
+        else  {
+            // do something else
+        }
+    },
+    
+    // #/profile
+    onRouteProfile: function(){ /* you get it now */ }
+
+})
+</pre>
+        <p> Then to instantiate it:</p>
+
+<pre class="prettyprint lang-js linenums">
+var router = new Router()
+</pre>
+        <p>After the router is instantiated, however, no routes will immediately be fired. This is so you can finish setting up - maybe your page needs to finish grabbing data or loading assets before
+        you want route events to start firing. Once you are ready, the following function <i>must</i> be called:</p>
+        
+<pre class="prettyprint lang-js linenums">
+Backbone.history.start() // tells the router(s) to start firing events
+</pre>
+        <h3>Using the History API</h3>
+        <p>To use the History API, first you must configure your server to <i>always</i> return your Backbone application for any routes that it should handle. In your Backbone app, you must also
+        use jQuery or some override so that links that Backbone should handle will not force the browser to reload (since you no longer have the preceding '#' in each link's href.) Finally, you must tell
+        Backbone that you are using the push state API when you start your app:</p>
+        
+<pre class="prettyprint lang-js linenums">
+// example jQuery handler for push state
+$( document.body ).on('click', 'a', function(event){
+    var href = $( event.currentTarget ).attr('href')
+    
+    if ( href.matches( /someRegex/ ) ){
+        event.preventDefault()                      // prevent page reload
+        router.navigate(href, { trigger: true })    // trigger the event
+    }
+})
+
+// Note that if pushState is unsupported, Backbone will gracefully fall back to hash changes
+Backbone.history.start({ pushState: true, root: '/' })
+</pre>
+        
+            </div>
+        </div>
+        
+        <div class="page-header">
+              <h1>Example App <small>Uses the Github API</small></h1>
+        </div>
+        <iframe src="example.html" style="width:100%; height: 500px; margin-bottom: 200px; border: 1px solid #ccc;"></iframe>
+            
+            
+    </div><!-- /container -->
+    
+
+    <script src="scripts/vendor/jquery.js"></script>
+    <script src="scripts/vendor/prettify.js"></script>
+    <script src="bootstrap/js/bootstrap.js"></script>
+    <script src="scripts/vendor/underscore.js"></script>
+    <script src="scripts/vendor/backbone.js"></script>
+    
+    <!-- custom javascript -->
+    <script>prettyPrint()</script>
+    
+    
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

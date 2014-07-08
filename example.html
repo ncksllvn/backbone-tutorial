@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
+
+	<meta charset="utf-8">
+	<title>nick's backbone tutorial</title>
+	<meta name="description" content="">
+	<meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+</head>
+<body>
+
+	<div class="container">
+        <h2><a href="#">GitHub Users</a></h2>
+        
+        <!-- add user form -->
+        <div class="form-inline" id="user-form">
+            <input id="github-username" class="form-control" placeholder="Enter username..." />
+            <button class="btn btn-primary">Add User</button>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <h1>Users</h1>
+                
+                <!-- user list view -->
+                <div id="user-list">
+                    <!-- each UserListView will go here -->
+                </div>
+            </div>
+            
+            <!-- main content view -->
+            <div class="col-md-9" id="main-content"></div>
+        </div>
+        
+    </div>
+    
+    <!--==================================================== 
+        Templates:
+        Normally you would use an AJAX loader for these, but putting them in the document is
+        fine for small apps.
+        ====================================================-->
+        
+    <script type="text/template" id="user-list-item">
+        <a class="pull-right delete" href="javascript:void(0)" class="btn btn-default">x</a>
+        <h6>
+            <a href="#/users/<%- id %>"><%- login %><a/>
+        </h6>
+    </script>
+    
+    <script type="text/template" id="main-content-template">
+        <h1><%- login %></h1>
+        
+        <h3><%- name %></h3>
+        
+        <% if ( avatar_url != null ){ %>
+            <img src="<%= avatar_url %>"/>
+        <% } %>
+    </script>
+    
+    <script src="scripts/vendor/jquery.js"></script>
+    <script src="scripts/vendor/underscore.js"></script>
+    <script src="scripts/vendor/backbone.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
